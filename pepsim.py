@@ -24,6 +24,9 @@ USAGE = """USAGE: computePeptideSimilarities.py <file1> <file2>
     --frag-bin-size <value> Bin size used on fragment m/z axis.
                             Default = 0.05.
 
+    --min-score <value>    Minimum score needed for which result is
+                           store. Default = 0.25.
+
     --static-mods <string> A comma-separated list of static mods,
                            formatted like <amino acid>:<mass shift>.
                            Use "nterm" or "cterm" to indicate terminal
@@ -227,6 +230,7 @@ def main():
   # Set default values for parameters.
   frag_bin_size = 0.05 # Size of fragment m/z bins in Da.
   mz_thresh = 0.0 # Threshold in ppm below which similarities are computed.
+  min_score = 0.25 # Score threshold for which result is kept
   static_mods = {"C": 57.02146} # Key = amino acid, value = mass offset
   skip_same = False
 
@@ -240,6 +244,9 @@ def main():
       sys.argv = sys.argv[1:]
     elif (next_arg == "--mz-thresh"):
       mz_thresh = float(sys.argv[0])
+      sys.argv = sys.argv[1:]
+    elif (next_arg == "--min-score"):
+      min_score = float(sys.argv[0])
       sys.argv = sys.argv[1:]
     elif (next_arg == "--static-mods"):
       static_mods = parse_static_mods(sys.argv[0])
@@ -306,13 +313,14 @@ def main():
           unmodified_peptide2, peptide2_mods, nterm2, cterm2,
           frag_bin_size)
 
-        num_printed += 1
-        print(f"{peptide1}\t{peptide2}\t{similarity:.4g}", end="")
-        if (mz_thresh != 0.0):
-          print(f"\t{masses1[index1]:.4f}" +
-                f"\t{masses2[index2]:.4f}" +
-                f"\t{masses1[index1] - masses2[index2]:.4f}" +
-                f"\t{mass_diff:.4f}", end="")
+        if similarity >= min_score:
+          num_printed += 1
+          print(f"{peptide1}\t{peptide2}\t{similarity:.4g}", end="")
+          if (mz_thresh != 0.0):
+            print(f"\t{masses1[index1]:.4f}" +
+                  f"\t{masses2[index2]:.4f}" +
+                  f"\t{masses1[index1] - masses2[index2]:.4f}" +
+                  f"\t{mass_diff:.4f}", end="")
         print("")
 
   print(f"Evaluated {num_pairs} out of {len(list1) * len(list2)} possible " +
