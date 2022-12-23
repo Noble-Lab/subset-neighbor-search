@@ -145,7 +145,7 @@ def read_peptides(in_file_name):
     words = line.rstrip().split("\t")
     peptide_list.append(words[0])
     if (len(words) > 1):
-      mass_list.append(float(words[1]))
+      mass_list.append(float(words[2]))
   inFile.close()
   if (len(peptide_list) != len(mass_list)):
     sys.stderr.write("Error: Found %d peptides but only %d masses.\n"
@@ -321,7 +321,7 @@ def main():
                   f"\t{masses2[index2]:.4f}" +
                   f"\t{masses1[index1] - masses2[index2]:.4f}" +
                   f"\t{mass_diff:.4f}", end="")
-        print("")
+          print("")
 
   print(f"Evaluated {num_pairs} out of {len(list1) * len(list2)} possible " +
         f"pairs ({(num_pairs / (len(list1)*len(list2))) * 100:.2f})",
